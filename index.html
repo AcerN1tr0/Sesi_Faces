@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SesiFaces</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            padding-bottom: 60px;
+        }
+        .title-container {
+            background-color: blue;
+            padding: 20px;
+            width: 100%;
+        }
+        .title {
+            font-size: 60px;
+            font-weight: bold;
+            color: white;
+            font-family: 'Comic Sans MS', cursive;
+            animation: fold 2s ease infinite;
+        }
+        @keyframes fold {
+            0% { transform: scaleX(1); }
+            50% { transform: scaleX(1.1); }
+            100% { transform: scaleX(1); }
+        }
+        .intro-text {
+            font-size: 24px;
+            margin-top: 20px;
+            font-family: 'Comic Sans MS', cursive;
+            color: black;
+            animation: slideIn 2s ease-out;
+        }
+        .photo-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            position: relative;
+            overflow: hidden;
+        }
+        .photo {
+            width: 180px;
+            height: 240px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 15px;
+            transition: transform 0.2s ease-in-out;
+            opacity: 0;
+        }
+        .photo:hover {
+            transform: scale(1.1);
+        }
+        .photo-name {
+            font-size: 16px;
+            margin-top: 5px;
+            font-family: 'Comic Sans MS', cursive;
+        }
+        .footer {
+            background-color: black;
+            color: white;
+            padding: 15px;
+            font-size: 16px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+        }
+        .winner-container {
+            margin-top: 50px;
+            position: relative;
+            z-index: 2;
+        }
+        .winner-photo {
+            width: 200px;
+            height: 260px;
+            margin-top: 20px;
+            border-radius: 15px;
+        }
+        .winner-message {
+            font-size: 24px;
+            font-weight: bold;
+            color: darkgoldenrod;
+            animation: fadeIn 2s ease-out;
+        }
+        .ranking-container {
+            display: none;
+            margin-top: 20px;
+        }
+        .ranking-table {
+            width: 60%;
+            margin: auto;
+            border-collapse: collapse;
+            border-radius: 15px;
+            overflow: hidden;
+            background-color: #ffeb99;
+            font-family: 'Comic Sans MS', cursive;
+            animation: fadeIn 2s ease-out;
+        }
+        .ranking-table th, .ranking-table td {
+            border: 2px solid #ffcc00;
+            padding: 10px;
+            text-align: center;
+        }
+        .ranking-table th {
+            background-color: #ff9900;
+            color: white;
+        }
+        .toggle-button, .reset-button, .retry-button, .comment-button, .share-button {
+            margin-top: 10px;
+            padding: 6px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            transition: background 0.3s, transform 0.3s ease-in-out;
+            animation: fold 2s ease infinite;
+            display: inline-block;
+            position: relative;
+            z-index: 1;
+        }
+        .toggle-button {
+            background-color: #ff66b2;
+            color: white;
+        }
+        .toggle-button:hover {
+            background-color: #ff3385;
+        }
+        .reset-button {
+            background-color: #66ccff;
+            color: white;
+        }
+        .reset-button:hover {
+            background-color: #3399cc;
+        }
+        .retry-button {
+            background-color: #ffcc00;
+            color: white;
+        }
+        .retry-button:hover {
+            background-color: #ff9900;
+        }
+        .comment-button {
+            background-color: #66ff66;
+            color: white;
+        }
+        .comment-button:hover {
+            background-color: #33cc33;
+        }
+        .share-button {
+            background-color: #ff9900;
+            color: white;
+        }
+        .share-button:hover {
+            background-color: #ff6600;
+        }
+        @keyframes slideIn {
+            0% { transform: translateX(100%); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+        .photo.show {
+            animation: slideIn 1s ease-out;
+            opacity: 1;
+        }
+        @keyframes slideOut {
+            0% { transform: translateX(0); opacity: 1; }
+            100% { transform: translateX(-100%); opacity: 0; }
+        }
+        .photo.hide {
+            animation: slideOut 1s ease-in;
+            opacity: 0;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        /* Design Responsivo */
+        @media (max-width: 768px) {
+            .photo-container {
+                flex-direction: column;
+            }
+            .ranking-table {
+                width: 90%;
+            }
+            .title {
+                font-size: 40px;
+            }
+            .intro-text {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="title-container">
+        <div class="title">SesiFaces</div>
+    </div>
+    <div class="intro-text">
+        Quem será a mais bonita do 1ºB? Vote aqui para descobrir!
+    </div>
+    <div class="photo-container" id="photo-container">
+        <!-- As imagens serão inseridas aqui via JavaScript -->
+    </div>
+    <button class="toggle-button" onclick="toggleRanking()">Mostrar/Ocultar Ranking</button>
+    <button class="reset-button" onclick="showPasswordPrompt()">Reiniciar Tabela</button>
+    <button class="retry-button" id="retry-button" style="display: none;" onclick="restartVoting()">Votar Novamente</button>
+    <button class="comment-button" onclick="showComments()">Comentar</button>
+    <button class="share-button" onclick="shareOnWhatsApp()">Compartilhar no WhatsApp</button>
+
+    <div id="ranking-container" class="ranking-container">
+        <table class="ranking-table" id="ranking-table">
+            <tr>
+                <th>Posição</th>
+                <th>Foto</th>
+                <th>Nome</th>
+                <th>Votos</th>
+                <th>Vitórias</th>
+            </tr>
+        </table>
+    </div>
+
+    <div id="winner-container" class="winner-container" style="display: none;">
+        <div class="winner-message">Campeã</div>
+        <img id="winner-photo" class="winner-photo" src="" alt="Campeã">
+    </div>
+
+    <div class="footer">
+        &copy; 2025 Todos os direitos reservados. Criado para fins educacionais.
+    </div>
+
+    <div id="comments-container" style="display: none;">
+        <h3>Comentários</h3>
+        <textarea id="comment-box" placeholder="Deixe seu comentário..."></textarea>
+        <button onclick="submitComment()">Enviar</button>
+        <div id="comments-list"></div>
+    </div>
+
+    <script>
+        const photos = [
+            'foto1.jpg', 'foto2.jpg', 'foto3.jpg', 'foto4.jpg',
+            'foto5.jpg', 'foto6.jpg', 'foto7.jpg', 'foto8.jpg',
+            'foto9.jpg', 'foto10.jpg', 'foto11.jpg', 'foto12.jpg'
+        ];
+        let scores = JSON.parse(localStorage.getItem('scores')) || {};
+        let wins = JSON.parse(localStorage.getItem('wins')) || {};
+        let comments = JSON.parse(localStorage.getItem('comments')) || [];
+
+        if (Object.keys(scores).length === 0) {
+            photos.forEach(photo => scores[photo] = 0);
+            photos.forEach(photo => wins[photo] = 0);
+        }
+
+        let pairings = [];
+        for (let i = 0; i < photos.length; i++) {
+            for (let j = i + 1; j < photos.length; j++) {
+                pairings.push([photos[i], photos[j]]);
+            }
+        }
+        pairings = pairings.sort(() => 0.5 - Math.random());
+
+        function displayPair() {
+            if (pairings.length === 0) {
+                displayWinner();
+                return;
+            }
+            const container = document.getElementById('photo-container');
+            container.innerHTML = '';
+            const pair = pairings.pop();
+            pair.forEach(photo => {
+                let img = document.createElement('img');
+                img.src = photo;
+                img.className = 'photo';
+                img.onclick = () => vote(photo);
+                let name = document.createElement('div');
+                name.className = 'photo-name';
+                name.textContent = photo;
+                let div = document.createElement('div');
+                div.appendChild(img);
+                div.appendChild(name);
+                container.appendChild(div);
+                img.classList.add('show');
+            });
+        }
+
+        function vote(winner) {
+            scores[winner]++;
+            localStorage.setItem('scores', JSON.stringify(scores));
+            updateRanking();
+            animatePhotoChange();
+        }
+
+        function animatePhotoChange() {
+            const photos = document.querySelectorAll('.photo');
+            photos.forEach(photo => photo.classList.add('hide'));
+            setTimeout(displayPair, 1000);
+        }
+
+        function updateRanking() {
+            const table = document.getElementById('ranking-table');
+            table.innerHTML = '<tr><th>Posição</th><th>Foto</th><th>Nome</th><th>Votos</th><th>Vitórias</th></tr>';
+            const sortedScores = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+            sortedScores.forEach(([photo, score], index) => {
+                let row = table.insertRow();
+                row.insertCell(0).textContent = index + 1;
+                let imgCell = row.insertCell(1);
+                let img = document.createElement('img');
+                img.src = photo;
+                img.style.width = '50px';
+                img.style.height = '65px';
+                imgCell.appendChild(img);
+                row.insertCell(2).textContent = photo;
+                row.insertCell(3).textContent = score;
+                row.insertCell(4).textContent = wins[photo];
+            });
+        }
+
+        function toggleRanking() {
+            let container = document.getElementById('ranking-container');
+            container.style.display = container.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function showPasswordPrompt() {
+            let password = prompt('Digite a senha para reiniciar a tabela de votos:');
+            if (password === 'admin') {
+                localStorage.clear();
+                location.reload();
+            } else {
+                alert('Senha incorreta!');
+            }
+        }
+
+        function restartVoting() {
+            pairings = [];
+            for (let i = 0; i < photos.length; i++) {
+                for (let j = i + 1; j < photos.length; j++) {
+                    pairings.push([photos[i], photos[j]]);
+                }
+            }
+            pairings = pairings.sort(() => 0.5 - Math.random());
+            scores = {};
+            photos.forEach(photo => scores[photo] = 0);
+            wins = {};
+            photos.forEach(photo => wins[photo] = 0);
+            localStorage.setItem('scores', JSON.stringify(scores));
+            localStorage.setItem('wins', JSON.stringify(wins));
+            displayPair();
+            document.getElementById('winner-container').style.display = 'none';
+            document.getElementById('retry-button').style.display = 'none';
+        }
+
+        function shareOnWhatsApp() {
+            let winner = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+            let url = `https://wa.me/?text=Veja%20quem%20ganhou%20no%20SesiFaces%3A%20${encodeURIComponent(winner)}`;
+            window.open(url, '_blank');
+        }
+
+        function showComments() {
+            document.getElementById('comments-container').style.display = 'block';
+        }
+
+        function submitComment() {
+            let commentBox = document.getElementById('comment-box');
+            let comment = commentBox.value.trim();
+            if (comment) {
+                comments.push(comment);
+                localStorage.setItem('comments', JSON.stringify(comments));
+                displayComments();
+                commentBox.value = ''; // Limpar o campo de comentário após envio
+            }
+        }
+
+        function displayComments() {
+            let commentsList = document.getElementById('comments-list');
+            commentsList.innerHTML = '';
+            comments.forEach((comment, index) => {
+                let p = document.createElement('p');
+                p.textContent = comment;
+                let deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Apagar';
+                deleteButton.onclick = () => deleteComment(index);
+                p.appendChild(deleteButton);
+                commentsList.appendChild(p);
+            });
+        }
+
+        function deleteComment(index) {
+            comments.splice(index, 1);
+            localStorage.setItem('comments', JSON.stringify(comments));
+            displayComments();
+        }
+
+        displayPair();
+    </script>
+</body>
+</html>
